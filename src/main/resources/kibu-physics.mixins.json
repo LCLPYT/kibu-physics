@@ -6,7 +6,6 @@
     "BlockStateBaseMixin",
     "LevelMixin",
     "entity.EntityMixin",
-    "entity.EntityTrackerEntryMixin",
     "entity.ExplosionMixin"
   ],
   "injectors": {
