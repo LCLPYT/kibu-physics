@@ -20,13 +20,31 @@ repositories {
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    minecraft "com.mojang:minecraft:$minecraft_version"
     mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc:fabric-loader:$loader_version"
 
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
-    include(modImplementation("work.lclpnet.mods.kibu:kibu-hook-api:${project.kibu_hook_api_version}"))
-    include(api("com.github.stephengold:Libbulletjme:${project.libbulletjme_version}"))
+    modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_version"
+    include modImplementation("work.lclpnet.mods.kibu:kibu-hook-api:$kibu_hook_api_version")
+
+    // libbulletjme JVM library
+    include api("com.github.stephengold:Libbulletjme-Linux64:$libbulletjme_version")
+
+    // libbulletjme native libraries
+    /* JME flavors:
+     * Sp (single-precision arithmetic)
+     * SpMt (single-precision arithmetic, multithreaded), unsupported on MacOSX
+     * Dp (double-precision arithmetic)
+     * DpMt (double-precision arithmetic, multithreaded), unsupported on MacOSX
+     */
+    include(runtimeOnly("com.github.stephengold:Libbulletjme-Linux64:$libbulletjme_version:SpMtRelease"))
+    include(runtimeOnly("com.github.stephengold:Libbulletjme-Linux_ARM64:$libbulletjme_version:SpMtRelease"))
+    include(runtimeOnly("com.github.stephengold:Libbulletjme-Windows64:$libbulletjme_version:SpMtRelease"))
+    include(runtimeOnly("com.github.stephengold:Libbulletjme-MacOSX64:$libbulletjme_version:SpRelease"))
+    include(runtimeOnly("com.github.stephengold:Libbulletjme-MacOSX_ARM64:$libbulletjme_version:SpRelease"))
+
+    // for platform-specific native library loading
+    include(implementation("io.github.electrostat-lab:snaploader:1.0.0-stable"))
 }
 
 processResources {

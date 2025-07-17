@@ -3,7 +3,7 @@
 	"id": "kibu-physics",
 	"version": "${version}",
 	"name": "Kibu Physics",
-	"description": "A physics simulation API for Fabric",
+	"description": "A physics simulation API for Fabric. Code originally from Rayon.",
 	"authors": [
 		"LCLP"
 	],
@@ -14,7 +14,11 @@
 	"license": "MIT",
 	"icon": "assets/kibu-physics/icon.png",
 	"environment": "*",
-	"entrypoints": {},
+	"entrypoints": {
+		"main": [
+			"work.lclpnet.kibu.physics.KibuPhysics"
+		]
+	},
 	"mixins": [
 		"kibu-physics.mixins.json"
 	],

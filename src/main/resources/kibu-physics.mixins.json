@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "dev.lazurite.rayon.impl.mixin.common",
+  "package": "work.lclpnet.kibu.physics.impl.mixin.common",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "BlockStateBaseMixin",
