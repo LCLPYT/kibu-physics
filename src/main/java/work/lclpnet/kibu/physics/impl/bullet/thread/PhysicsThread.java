@@ -50,7 +50,7 @@ public class PhysicsThread extends Thread implements Executor {
             this.throwable = throwable;
         });
 
-        Rayon.LOGGER.info("Starting " + getName());
+        Rayon.LOGGER.info("Starting {}", getName());
         this.start();
     }
 
@@ -120,13 +120,12 @@ public class PhysicsThread extends Thread implements Executor {
      */
     public void destroy() {
         this.running = false;
-        Rayon.LOGGER.info("Stopping " + getName());
+        Rayon.LOGGER.info("Stopping {}", getName());
 
         try {
             this.join(5000); // 5 second timeout
         } catch (InterruptedException e) {
-            Rayon.LOGGER.error("Error joining " + getName());
-            e.printStackTrace();
+            Rayon.LOGGER.error("Error joining {}", getName());
         }
     }
 }
