@@ -15,7 +15,7 @@ public class LevelMixin implements SpaceStorage {
     @Unique private MinecraftSpace space;
 
     @Override
-    public void kibu$setSpace(MinecraftSpace space) {  // TODO add mixin prefix
+    public void kibu$setSpace(MinecraftSpace space) {
         this.space = space;
     }
 
