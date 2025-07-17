@@ -1,37 +1,21 @@
 {
 	"schemaVersion": 1,
-	"id": "testmod",
+	"id": "kibu-physics",
 	"version": "${version}",
-	"name": "Test Mod",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"name": "Kibu Physics",
+	"description": "A physics simulation API for Fabric",
 	"authors": [
-		"Me!"
+		"LCLP"
 	],
 	"contact": {
-		"homepage": "https://github.com/LCLPYT/fabric-mod-boilerplate",
-		"sources": "https://github.com/LCLPYT/fabric-mod-boilerplate"
+		"homepage": "https://github.com/LCLPYT/kibu-physics",
+		"sources": "https://github.com/LCLPYT/kibu-physics"
 	},
-	"license": "CC0-1.0",
-	"icon": "assets/testmod/icon.png",
+	"license": "MIT",
+	"icon": "assets/kibu-physics/icon.png",
 	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"com.example.ExampleMod"
-		],
-		"client": [
-			"com.example.ExampleModClient"
-		],
-		"fabric-datagen": [
-			"com.example.ExampleModDataGenerator"
-		]
-	},
-	"mixins": [
-		"testmod.mixins.json",
-		{
-			"config": "testmod.client.mixins.json",
-			"environment": "client"
-		}
-	],
+	"entrypoints": {},
+	"mixins": [],
 	"depends": {
 		"fabricloader": ">=0.16.14",
 		"minecraft": "~1.21.7",
