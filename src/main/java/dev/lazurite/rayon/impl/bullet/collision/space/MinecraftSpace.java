@@ -52,7 +52,7 @@ public class MinecraftSpace extends PhysicsSpace implements PhysicsCollisionList
      * @return the {@link MinecraftSpace}
      */
     public static MinecraftSpace get(Level level) {
-        return ((SpaceStorage) level).getSpace();
+        return ((SpaceStorage) level).kibu$getSpace();
     }
 
     public static Optional<MinecraftSpace> getOptional(Level level) {

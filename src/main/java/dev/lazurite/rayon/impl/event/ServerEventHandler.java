@@ -85,7 +85,7 @@ public final class ServerEventHandler {
 
     public static void onLevelLoad(MinecraftServer server, ServerLevel level) {
         final var space = new MinecraftSpace(thread, level);
-        ((SpaceStorage) level).setSpace(space);
+        ((SpaceStorage) level).kibu$setSpace(space);
         PhysicsSpaceEvents.INIT.invoker().onInit(space);
     }
 

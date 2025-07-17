@@ -8,6 +8,6 @@ import net.minecraft.world.level.Level;
  * {@link Level} object.
  */
 public interface SpaceStorage {
-    void setSpace(MinecraftSpace space);
-    MinecraftSpace getSpace();
+    void kibu$setSpace(MinecraftSpace space);
+    MinecraftSpace kibu$getSpace();
 }
