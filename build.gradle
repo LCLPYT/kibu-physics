@@ -19,6 +19,27 @@ repositories {
     }
 }
 
+sourceSets {
+    testmod {
+        compileClasspath += main.compileClasspath + main.getOutput()
+        runtimeClasspath += main.runtimeClasspath + main.getOutput()
+    }
+}
+
+loom {
+    runs {
+        named('server') {
+            source 'testmod'
+        }
+
+        named('client') {
+            source 'testmod'
+        }
+    }
+
+    accessWidenerPath = file("src/testmod/resources/kibu-physics-test.accesswidener")
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:$minecraft_version"
     mappings loom.officialMojangMappings()
@@ -45,6 +66,8 @@ dependencies {
 
     // for platform-specific native library loading
     include(implementation("io.github.electrostat-lab:snaploader:1.0.0-stable"))
+
+    modLocalRuntime(modCompileOnly("work.lclpnet.mods.kibu:kibu-access-lib:$kibu_access_lib_version"))
 }
 
 processResources {

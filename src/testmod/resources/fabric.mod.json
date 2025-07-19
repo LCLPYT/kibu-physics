@@ -1,0 +1,24 @@
+{
+	"schemaVersion": 1,
+	"id": "kibu-physics-test",
+	"version": "${version}",
+	"name": "kibu-physics-test",
+	"description": "[Test Mod] A physics simulation API for Fabric. Code originally from Rayon.",
+	"authors": [
+		"LCLP"
+	],
+	"license": "MIT",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"work.lclpnet.kibu.physics.TestMod"
+		],
+		"client": [
+			"work.lclpnet.kibu.physics.TestModClient"
+		]
+	},
+	"accessWidener": "kibu-physics-test.accesswidener",
+	"depends": {
+		"kibu-physics": "*"
+	}
+}
