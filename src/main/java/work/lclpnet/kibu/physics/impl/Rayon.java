@@ -10,6 +10,8 @@ public class Rayon {
 	public static final Logger LOGGER = KibuPhysics.LOGGER;
 
 	public static void intialize() {
+		java.util.logging.LogManager.getLogManager().reset();
+
 		NativeLoader loader = new NativeLoader(LOGGER);
 
 		if (!loader.load()) {
