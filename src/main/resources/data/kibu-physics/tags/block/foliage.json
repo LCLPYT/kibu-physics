@@ -16,7 +16,14 @@
       "id": "#minecraft:flowers",
       "required": false
     },
+    "minecraft:moss_carpet",
+    "minecraft:moss_block",
+    "minecraft:pale_moss_carpet",
+    "minecraft:pale_moss_block",
+    "minecraft:pale_hanging_moss",
     "minecraft:bamboo",
-    "minecraft:dead_bush"
+    "minecraft:dead_bush",
+    "minecraft:warped_fungus",
+    "minecraft:crimson_fungus"
   ]
 }

@@ -1,19 +1,27 @@
 {
   "values": [
     {
-      "id": "#kibu-physics-test:foliage",
+      "id": "#kibu-physics:foliage",
       "required": false
     },
     {
-      "id": "#kibu-physics-test:wooden",
+      "id": "#kibu-physics:wooden",
       "required": false
     },
     {
-      "id": "#kibu-physics-test:cloth",
+      "id": "#kibu-physics:cloth",
       "required": false
     },
     {
       "id": "#minecraft:replaceable",
+      "required": false
+    },
+    {
+      "id": "#minecraft:replaceable_by_mushrooms",
+      "required": false
+    },
+    {
+      "id": "#minecraft:replaceable_by_trees",
       "required": false
     },
     {

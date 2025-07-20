@@ -43,6 +43,7 @@
     {
       "id": "#minecraft:wooden_trapdoors",
       "required": false
-    }
+    },
+    "minecraft:mangrove_roots"
   ]
 }

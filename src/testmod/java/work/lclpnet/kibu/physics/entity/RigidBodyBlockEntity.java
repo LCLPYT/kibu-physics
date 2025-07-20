@@ -5,7 +5,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -13,12 +12,12 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import work.lclpnet.kibu.access.entity.DisplayEntityAccess;
-import work.lclpnet.kibu.physics.TestMod;
 import work.lclpnet.kibu.physics.api.EntityPhysicsElement;
 import work.lclpnet.kibu.physics.impl.bullet.collision.body.ElementRigidBody;
 import work.lclpnet.kibu.physics.impl.bullet.collision.body.EntityRigidBody;
 import work.lclpnet.kibu.physics.impl.bullet.collision.body.shape.MinecraftShape;
 import work.lclpnet.kibu.physics.impl.bullet.math.Convert;
+import work.lclpnet.kibu.physics.util.BlockPhysics;
 
 public class RigidBodyBlockEntity extends Display.BlockDisplay implements EntityPhysicsElement {
 
@@ -60,16 +59,9 @@ public class RigidBodyBlockEntity extends Display.BlockDisplay implements Entity
 
     public void updateRigidBody() {
         BlockState state = getBlockState();
-        Block block = state.getBlock();
 
-        var x = (float) Math.min(Math.max(12f * Math.log1p(Math.max(block.defaultDestroyTime(), block.getExplosionResistance())), 5), 50);
-
-        if (x < 0 || Float.isNaN(x)) {
-            x = 60;
-        }
-
-        this.getRigidBody().setMass(x);
-        this.getRigidBody().setBuoyancyType(state.is(TestMod.FLOATING) ? ElementRigidBody.BuoyancyType.WATER : ElementRigidBody.BuoyancyType.NONE);
+        this.getRigidBody().setMass(BlockPhysics.getMass(state));
+        this.getRigidBody().setBuoyancyType(BlockPhysics.getBuoyancyType(state));
         this.rigidBody.setCollisionShape(this.createShape());
         this.setBoundingBox(this.makeBoundingBox());
     }
