@@ -31,7 +31,11 @@ public class Convert {
     }
 
     public static Quaternionf toMinecraft(Quaternion quat) {
-        return new Quaternionf(quat.getX(), quat.getY(), quat.getZ(), quat.getW());
+        return toMinecraft(quat, new Quaternionf());
+    }
+
+    public static Quaternionf toMinecraft(Quaternion quat, Quaternionf dst) {
+        return dst.set(quat.getX(), quat.getY(), quat.getZ(), quat.getW());
     }
 
     public static org.joml.Vector3f toMinecraft(Vector3f vector3f) {

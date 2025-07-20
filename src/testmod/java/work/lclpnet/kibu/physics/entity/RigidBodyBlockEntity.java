@@ -1,13 +1,10 @@
 package work.lclpnet.kibu.physics.entity;
 
 import com.mojang.math.Transformation;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -68,23 +65,7 @@ public class RigidBodyBlockEntity extends Display.BlockDisplay implements Entity
 
     @Override
     public MinecraftShape.Convex createShape() {
-        BlockState state = getBlockState();
-
-        if (state.isAir()) {
-            return MinecraftShape.convex(new AABB( -.5, -.5, -.5, .5, .5, .5));
-        }
-
-        Level level = level();
-        VoxelShape box = state.getCollisionShape(level, BlockPos.ZERO);
-
-        if (box.isEmpty()) {
-            box = state.getShape(level, BlockPos.ZERO);
-        }
-
-        var shape = MinecraftShape.convex(box);
-        shape.setScale(0.99f);
-
-        return shape;
+        return BlockPhysics.getShape(getBlockState(), level());
     }
 
     private Vector3f resetTranslation() {
