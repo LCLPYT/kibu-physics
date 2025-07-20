@@ -6,7 +6,7 @@ plugins {
 
 Properties props = buildUtils.loadProperties('publish.properties')  // will be empty, if the file is missing
 
-version = "${project.mod_version}+${project.minecraft_version}"
+version = "$project.mod_version+$project.minecraft_version${project.snapshot_version == 'true' ? '-SNAPSHOT' : ''}"
 group = project.maven_group
 
 base {
