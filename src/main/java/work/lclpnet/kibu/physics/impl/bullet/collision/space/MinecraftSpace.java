@@ -1,12 +1,15 @@
 package work.lclpnet.kibu.physics.impl.bullet.collision.space;
 
 import com.jme3.bullet.PhysicsSpace;
-import com.jme3.bullet.collision.PhysicsCollisionEvent;
-import com.jme3.bullet.collision.PhysicsCollisionListener;
+import com.jme3.bullet.collision.PersistentManifolds;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.objects.PhysicsRigidBody;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.Level;
 import work.lclpnet.kibu.physics.api.event.collision.ElementCollisionEvents;
 import work.lclpnet.kibu.physics.api.event.collision.PhysicsSpaceEvents;
 import work.lclpnet.kibu.physics.impl.bullet.collision.body.ElementRigidBody;
@@ -15,10 +18,6 @@ import work.lclpnet.kibu.physics.impl.bullet.collision.space.cache.ChunkCache;
 import work.lclpnet.kibu.physics.impl.bullet.collision.space.generator.TerrainGenerator;
 import work.lclpnet.kibu.physics.impl.bullet.collision.space.storage.SpaceStorage;
 import work.lclpnet.kibu.physics.impl.bullet.thread.PhysicsThread;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.level.Level;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -35,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see PhysicsThread
  * @see PhysicsSpaceEvents
  */
-public class MinecraftSpace extends PhysicsSpace implements PhysicsCollisionListener {
+public class MinecraftSpace extends PhysicsSpace {
     private final CompletableFuture<?>[] futures = new CompletableFuture[3];
     private final Map<BlockPos, TerrainRigidBody> terrainMap;
     private final PhysicsThread thread;
@@ -44,6 +43,7 @@ public class MinecraftSpace extends PhysicsSpace implements PhysicsCollisionList
 
     private volatile boolean stepping;
     private final Set<SectionPos> previousBlockUpdates;
+    private boolean collisionEventsEnabled = false;
 
     /**
      * Allows users to retrieve the {@link MinecraftSpace} associated
@@ -74,6 +74,10 @@ public class MinecraftSpace extends PhysicsSpace implements PhysicsCollisionList
         this.terrainMap = new ConcurrentHashMap<>();
         this.setGravity(new Vector3f(0, -9.807f, 0));
         this.setAccuracy(1f/60f);
+    }
+
+    public void setCollisionEventsEnabled(boolean collisionEventsEnabled) {
+        this.collisionEventsEnabled = collisionEventsEnabled;
     }
 
     /**
@@ -121,7 +125,7 @@ public class MinecraftSpace extends PhysicsSpace implements PhysicsCollisionList
                     PhysicsSpaceEvents.STEP.invoker().onStep(this);
 
                     /* Step the Simulation */
-                    this.update(1/60f);
+                    this.update(1/60f, maxSubSteps(), false, false, collisionEventsEnabled);
                 }, getWorkerThread());
             }
 
@@ -229,25 +233,25 @@ public class MinecraftSpace extends PhysicsSpace implements PhysicsCollisionList
         return this.chunkCache;
     }
 
-    /**
-     * Trigger all collision events (e.g. block/element or element/element).
-     * @param event the event context
-     */
     @Override
-    public void collision(PhysicsCollisionEvent event) {
-        float impulse = event.getAppliedImpulse();
+    public void onContactStarted(long manifoldId) {
+        super.onContactStarted(manifoldId);
 
-        /* Element on Element */
-        if (event.getObjectA() instanceof ElementRigidBody rigidBodyA && event.getObjectB() instanceof ElementRigidBody rigidBodyB) {
-            ElementCollisionEvents.ELEMENT_COLLISION.invoker().onCollide(rigidBodyA.getElement(), rigidBodyB.getElement(), impulse);
+        var objectA = PhysicsCollisionObject.findInstance(PersistentManifolds.getBodyAId(manifoldId));
+        var objectB = PhysicsCollisionObject.findInstance(PersistentManifolds.getBodyBId(manifoldId));
 
-        /* Block on Element */
-        } else if (event.getObjectA() instanceof TerrainRigidBody terrain && event.getObjectB() instanceof ElementRigidBody rigidBody) {
-            ElementCollisionEvents.BLOCK_COLLISION.invoker().onCollide(rigidBody.getElement(), terrain, impulse);
+        if (objectA instanceof ElementRigidBody rigidBodyA && objectB instanceof ElementRigidBody rigidBodyB) {
+            ElementCollisionEvents.ELEMENT_COLLISION.invoker().onCollide(rigidBodyA.getElement(), rigidBodyB.getElement(), manifoldId);
+            return;
+        }
 
-        /* Element on Block */
-        } else if (event.getObjectA() instanceof ElementRigidBody rigidBody && event.getObjectB() instanceof TerrainRigidBody terrain) {
-            ElementCollisionEvents.BLOCK_COLLISION.invoker().onCollide(rigidBody.getElement(), terrain, impulse);
+        if (objectA instanceof TerrainRigidBody terrain && objectB instanceof ElementRigidBody rigidBody) {
+            ElementCollisionEvents.BLOCK_COLLISION.invoker().onCollide(rigidBody.getElement(), terrain, manifoldId);
+            return;
+        }
+
+        if (objectA instanceof ElementRigidBody rigidBody && objectB instanceof TerrainRigidBody terrain) {
+            ElementCollisionEvents.BLOCK_COLLISION.invoker().onCollide(rigidBody.getElement(), terrain, manifoldId);
         }
     }
 }
