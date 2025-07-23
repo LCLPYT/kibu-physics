@@ -1,8 +1,5 @@
 package work.lclpnet.kibu.physics.impl.bullet.collision.space.cache;
 
-import work.lclpnet.kibu.physics.impl.bullet.collision.body.ElementRigidBody;
-import work.lclpnet.kibu.physics.impl.bullet.collision.space.MinecraftSpace;
-import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -12,6 +9,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import work.lclpnet.kibu.physics.impl.bullet.collision.body.ElementRigidBody;
+import work.lclpnet.kibu.physics.impl.bullet.collision.space.MinecraftSpace;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,17 +19,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SimpleChunkCache implements ChunkCache {
-    private static final Hash.Strategy<BlockPos> QUICK_BLOCK_POS = new Hash.Strategy<>() {
-        @Override
-        public int hashCode(BlockPos pos) {
-            return pos.hashCode();
-        }
-
-        @Override
-        public boolean equals(BlockPos pos, BlockPos k1) {
-            return k1 != null && (pos.getX() == k1.getX() && pos.getY() == k1.getY() && pos.getZ() == k1.getZ());
-        }
-    };
 
     private final MinecraftSpace space;
     private final Map<BlockPos, BlockData> blockData;
@@ -39,7 +27,7 @@ public class SimpleChunkCache implements ChunkCache {
     private final LongSet activePositions;
     private final Long2ObjectMap<List<BlockPos>> activeColumn;
 
-    SimpleChunkCache(MinecraftSpace space) {
+    public SimpleChunkCache(MinecraftSpace space) {
         this.space = space;
         this.blockData = new ConcurrentHashMap<>();
         this.fluidColumns = new ArrayList<>();
@@ -81,7 +69,6 @@ public class SimpleChunkCache implements ChunkCache {
 
     @Override
     public void refreshAll() {
-        final var level = space.getLevel();
         this.activePositions.clear();
         this.activeColumn.clear();
 
@@ -101,20 +88,7 @@ public class SimpleChunkCache implements ChunkCache {
                 this.activeColumn.computeIfAbsent(columnIndex(pos), (a) -> new ObjectArrayList<>(512)).add(pos);
                 this.activePositions.add(pos.asLong());
 
-                var blockData = this.blockData.get(pos);
-                final var blockState = level.getBlockState(pos);
-
-                if (blockData != null) {
-                    if (blockData.blockState() != blockState) {
-                        loadBlockData(pos, level, blockState);
-                    }
-                } else {
-                    loadBlockData(pos, level, blockState);
-                }
-
-                if (this.getFluidColumn(pos).isEmpty()) {
-                    loadFluidData(pos);
-                }
+                loadData(pos);
             });
         }
 
@@ -131,6 +105,26 @@ public class SimpleChunkCache implements ChunkCache {
 
             return x;
         });
+    }
+
+    @Override
+    public void loadData(BlockPos pos) {
+        Level level = space.getLevel();
+
+        var blockData = this.blockData.get(pos);
+        final var blockState = level.getBlockState(pos);
+
+        if (blockData != null) {
+            if (blockData.blockState() != blockState) {
+                loadBlockData(pos, level, blockState);
+            }
+        } else {
+            loadBlockData(pos, level, blockState);
+        }
+
+        if (this.getFluidColumn(pos).isEmpty()) {
+            loadFluidData(pos);
+        }
     }
 
     private static long columnIndex(BlockPos blockPos) {

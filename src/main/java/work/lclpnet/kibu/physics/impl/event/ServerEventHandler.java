@@ -1,6 +1,19 @@
 package work.lclpnet.kibu.physics.impl.event;
 
 import com.jme3.math.Vector3f;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import work.lclpnet.kibu.physics.api.EntityPhysicsElement;
 import work.lclpnet.kibu.physics.api.event.collision.PhysicsSpaceEvents;
 import work.lclpnet.kibu.physics.impl.bullet.collision.body.ElementRigidBody;
@@ -15,19 +28,6 @@ import work.lclpnet.kibu.physics.impl.bullet.collision.space.supplier.level.Serv
 import work.lclpnet.kibu.physics.impl.bullet.math.Convert;
 import work.lclpnet.kibu.physics.impl.bullet.thread.PhysicsThread;
 import work.lclpnet.kibu.physics.impl.bullet.thread.util.ClientUtil;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
-import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 
 public final class ServerEventHandler {
     private static PhysicsThread thread;
@@ -39,7 +39,7 @@ public final class ServerEventHandler {
     public static void register() {
         // Rayon Events
         PhysicsSpaceEvents.STEP.register(PressureGenerator::step);
-        PhysicsSpaceEvents.STEP.register(TerrainGenerator::step);
+        PhysicsSpaceEvents.STEP.register(ServerEventHandler::stepTerrain);
         PhysicsSpaceEvents.ELEMENT_ADDED.register(ServerEventHandler::onElementAddedToSpace);
 
         // Server Events
@@ -84,7 +84,10 @@ public final class ServerEventHandler {
     }
 
     public static void onLevelLoad(MinecraftServer server, ServerLevel level) {
-        final var space = new MinecraftSpace(thread, level);
+        var space = new MinecraftSpace(thread, level);
+
+        space = PhysicsSpaceEvents.CREATE.invoker().createPhysicsSpace(thread, level, space);
+
         ((SpaceStorage) level).kibu$setSpace(space);
         PhysicsSpaceEvents.INIT.invoker().onInit(space);
     }
@@ -125,6 +128,12 @@ public final class ServerEventHandler {
             /* Set entity position */
             var location = rigidBody.getFrame().getLocation(new Vector3f(), 1.0f);
             rigidBody.getElement().cast().absSnapTo(location.x, location.y, location.z);
+        }
+    }
+
+    private static void stepTerrain(MinecraftSpace space) {
+        if (space.isAutoLoadTerrain()) {
+            TerrainGenerator.step(space);
         }
     }
 }

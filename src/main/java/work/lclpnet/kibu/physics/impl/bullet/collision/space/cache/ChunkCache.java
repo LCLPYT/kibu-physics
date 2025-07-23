@@ -1,15 +1,15 @@
 package work.lclpnet.kibu.physics.impl.bullet.collision.space.cache;
 
 import com.jme3.math.Vector3f;
-import work.lclpnet.kibu.physics.impl.bullet.collision.body.shape.MinecraftShape;
-import work.lclpnet.kibu.physics.impl.bullet.collision.space.MinecraftSpace;
-import work.lclpnet.kibu.physics.impl.bullet.collision.space.block.BlockProperty;
-import work.lclpnet.kibu.physics.impl.bullet.math.Convert;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.FluidState;
+import work.lclpnet.kibu.physics.impl.bullet.collision.body.shape.MinecraftShape;
+import work.lclpnet.kibu.physics.impl.bullet.collision.space.MinecraftSpace;
+import work.lclpnet.kibu.physics.impl.bullet.collision.space.block.BlockProperty;
+import work.lclpnet.kibu.physics.impl.bullet.math.Convert;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +44,7 @@ public interface ChunkCache {
     }
 
     void refreshAll();
+    void loadData(BlockPos blockPos);
     void loadBlockData(BlockPos blockPos);
     void loadFluidData(BlockPos blockPos);
 

@@ -22,6 +22,7 @@ import work.lclpnet.kibu.physics.impl.bullet.thread.PhysicsThread;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /**
  * This is the main physics simulation used by Rayon. Each bullet simulation update
@@ -44,6 +45,7 @@ public class MinecraftSpace extends PhysicsSpace {
     private volatile boolean stepping;
     private final Set<SectionPos> previousBlockUpdates;
     private boolean collisionEventsEnabled = false;
+    private boolean autoLoadTerrain = true;
 
     /**
      * Allows users to retrieve the {@link MinecraftSpace} associated
@@ -60,6 +62,10 @@ public class MinecraftSpace extends PhysicsSpace {
     }
 
     public MinecraftSpace(PhysicsThread thread, Level level) {
+        this(thread, level, ChunkCache::create);
+    }
+
+    public MinecraftSpace(PhysicsThread thread, Level level, Function<MinecraftSpace, ChunkCache> chunkCacheFactory) {
         super(
 //                new Vector3f(-Level.MAX_LEVEL_SIZE, Level.MIN_ENTITY_SPAWN_Y, -Level.MAX_LEVEL_SIZE),
 //                new Vector3f(Level.MAX_LEVEL_SIZE, Level.MAX_ENTITY_SPAWN_Y, Level.MAX_LEVEL_SIZE),
@@ -70,7 +76,7 @@ public class MinecraftSpace extends PhysicsSpace {
         this.thread = thread;
         this.level = level;
         this.previousBlockUpdates = new HashSet<>();
-        this.chunkCache = ChunkCache.create(this);
+        this.chunkCache = chunkCacheFactory.apply(this);
         this.terrainMap = new ConcurrentHashMap<>();
         this.setGravity(new Vector3f(0, -9.807f, 0));
         this.setAccuracy(1f/60f);
@@ -78,6 +84,14 @@ public class MinecraftSpace extends PhysicsSpace {
 
     public void setCollisionEventsEnabled(boolean collisionEventsEnabled) {
         this.collisionEventsEnabled = collisionEventsEnabled;
+    }
+
+    public boolean isAutoLoadTerrain() {
+        return autoLoadTerrain;
+    }
+
+    public void setAutoLoadTerrain(boolean autoLoadTerrain) {
+        this.autoLoadTerrain = autoLoadTerrain;
     }
 
     /**
@@ -115,7 +129,9 @@ public class MinecraftSpace extends PhysicsSpace {
             }
             this.previousBlockUpdates.clear();
 
-            this.chunkCache.refreshAll();
+            if (autoLoadTerrain) {
+                this.chunkCache.refreshAll();
+            }
 
             // Step 3 times per tick, re-evaluating forces each step
             for (int i = 0; i < 3; ++i) {

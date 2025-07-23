@@ -1,14 +1,24 @@
 package work.lclpnet.kibu.physics.api.event.collision;
 
-import work.lclpnet.kibu.physics.impl.bullet.collision.body.ElementRigidBody;
-import work.lclpnet.kibu.physics.impl.bullet.collision.space.MinecraftSpace;
+import net.minecraft.server.level.ServerLevel;
 import work.lclpnet.kibu.hook.Hook;
 import work.lclpnet.kibu.hook.HookFactory;
+import work.lclpnet.kibu.physics.impl.bullet.collision.body.ElementRigidBody;
+import work.lclpnet.kibu.physics.impl.bullet.collision.space.MinecraftSpace;
+import work.lclpnet.kibu.physics.impl.bullet.thread.PhysicsThread;
 
 /**
  * @since 1.0.0
  */
 public final class PhysicsSpaceEvents {
+
+    public static final Hook<Create> CREATE = HookFactory.createArrayBacked(Create.class, hooks -> (thread, level, prev) -> {
+        for (Create hook : hooks) {
+            prev = hook.createPhysicsSpace(thread, level, prev);
+        }
+
+        return prev;
+    });
 
     public static final Hook<Init> INIT = HookFactory.createArrayBacked(Init.class, hooks -> space -> {
         for (Init hook : hooks) {
@@ -35,6 +45,18 @@ public final class PhysicsSpaceEvents {
     });
 
     private PhysicsSpaceEvents() { }
+
+    @FunctionalInterface
+    public interface Create {
+        /**
+         * Invoked when a {@link MinecraftSpace} is created for a {@link ServerLevel}.
+         * @param thread The central {@link PhysicsThread}.
+         * @param level The level for which to create the level.
+         * @param prev The {@link MinecraftSpace} instance created by the previous callback.
+         * @return The resulting callback, which is also passed to the next callback.
+         */
+        MinecraftSpace createPhysicsSpace(PhysicsThread thread, ServerLevel level, MinecraftSpace prev);
+    }
 
     @FunctionalInterface
     public interface Init {
