@@ -58,11 +58,18 @@ dependencies {
      * Dp (double-precision arithmetic)
      * DpMt (double-precision arithmetic, multithreaded), unsupported on MacOSX
      */
-    include(runtimeOnly("com.github.stephengold:Libbulletjme-Linux64:$libbulletjme_version:SpRelease"))
-    include(runtimeOnly("com.github.stephengold:Libbulletjme-Linux_ARM64:$libbulletjme_version:SpRelease"))
-    include(runtimeOnly("com.github.stephengold:Libbulletjme-Windows64:$libbulletjme_version:SpRelease"))
-    include(runtimeOnly("com.github.stephengold:Libbulletjme-MacOSX64:$libbulletjme_version:SpRelease"))
-    include(runtimeOnly("com.github.stephengold:Libbulletjme-MacOSX_ARM64:$libbulletjme_version:SpRelease"))
+
+    /* JME modes:
+     * Release: Release build
+     * Debug: Build with debug symbols, profiler support etc.
+     */
+    def jme_mode = 'Debug'
+
+    include(runtimeOnly("com.github.stephengold:Libbulletjme-Linux64:$libbulletjme_version:Sp$jme_mode"))
+    include(runtimeOnly("com.github.stephengold:Libbulletjme-Linux_ARM64:$libbulletjme_version:Sp$jme_mode"))
+    include(runtimeOnly("com.github.stephengold:Libbulletjme-Windows64:$libbulletjme_version:Sp$jme_mode"))
+    include(runtimeOnly("com.github.stephengold:Libbulletjme-MacOSX64:$libbulletjme_version:Sp$jme_mode"))
+    include(runtimeOnly("com.github.stephengold:Libbulletjme-MacOSX_ARM64:$libbulletjme_version:Sp$jme_mode"))
 
     // for platform-specific native library loading
     include(implementation("io.github.electrostat-lab:snaploader:1.0.0-stable"))
