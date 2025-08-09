@@ -63,7 +63,7 @@ dependencies {
      * Release: Release build
      * Debug: Build with debug symbols, profiler support etc.
      */
-    def jme_mode = 'Debug'
+    def jme_mode = 'Release'
 
     include(runtimeOnly("com.github.stephengold:Libbulletjme-Linux64:$libbulletjme_version:Sp$jme_mode"))
     include(runtimeOnly("com.github.stephengold:Libbulletjme-Linux_ARM64:$libbulletjme_version:Sp$jme_mode"))
