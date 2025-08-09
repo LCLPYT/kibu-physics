@@ -65,6 +65,7 @@ public final class ServerEventHandler {
 
     public static void onServerStart(MinecraftServer server) {
         thread = new PhysicsThread(server, Thread.currentThread(), new ServerLevelSupplier(server), new ServerEntitySupplier(), "Server Physics Thread");
+        thread.start();
     }
 
     public static void onServerStop(MinecraftServer server) {

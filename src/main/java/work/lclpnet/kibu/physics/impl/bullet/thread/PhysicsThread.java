@@ -1,5 +1,9 @@
 package work.lclpnet.kibu.physics.impl.bullet.thread;
 
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.thread.ReentrantBlockableEventLoop;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import work.lclpnet.kibu.physics.api.PhysicsElement;
 import work.lclpnet.kibu.physics.api.event.collision.PhysicsSpaceEvents;
 import work.lclpnet.kibu.physics.impl.Rayon;
@@ -7,13 +11,9 @@ import work.lclpnet.kibu.physics.impl.bullet.collision.space.MinecraftSpace;
 import work.lclpnet.kibu.physics.impl.bullet.collision.space.supplier.entity.EntitySupplier;
 import work.lclpnet.kibu.physics.impl.bullet.collision.space.supplier.level.LevelSupplier;
 import work.lclpnet.kibu.physics.impl.bullet.thread.util.ClientUtil;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.thread.ReentrantBlockableEventLoop;
-import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 
+import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 
 /**
@@ -25,7 +25,8 @@ import java.util.concurrent.Executor;
  * @see MinecraftSpace
  */
 public class PhysicsThread extends Thread implements Executor {
-    private final Queue<Runnable> tasks = new ConcurrentLinkedQueue<>();
+
+    private final Queue<Runnable> tasks = new LinkedList<>();
     private final Executor parentExecutor;
     private final Thread parentThread;
     private final LevelSupplier levelSupplier;
@@ -51,7 +52,6 @@ public class PhysicsThread extends Thread implements Executor {
         });
 
         Rayon.LOGGER.info("Starting {}", getName());
-        this.start();
     }
 
     /**
@@ -59,13 +59,26 @@ public class PhysicsThread extends Thread implements Executor {
      */
     @Override
     public void run() {
-        while (running) {
-            if (!ClientUtil.isPaused()) {
-                /* Run all queued tasks */
-                while (!tasks.isEmpty()) {
-                    tasks.poll().run();
+        try {
+            while (running) {
+                Runnable task;
+
+                synchronized (tasks) {
+                    while (tasks.isEmpty() || ClientUtil.isPaused()) {
+                        tasks.wait();
+
+                        if (!running) return;
+                    }
+
+                    task = tasks.poll();
+                }
+
+                if (task != null) {
+                    task.run();
                 }
             }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -76,7 +89,10 @@ public class PhysicsThread extends Thread implements Executor {
      */
     @Override
     public void execute(@NotNull Runnable task) {
-        tasks.add(task);
+        synchronized (tasks) {
+            tasks.add(task);
+            tasks.notifyAll();
+        }
     }
 
     /**
@@ -122,10 +138,15 @@ public class PhysicsThread extends Thread implements Executor {
         this.running = false;
         Rayon.LOGGER.info("Stopping {}", getName());
 
+        synchronized (tasks) {
+            tasks.notifyAll();
+        }
+
         try {
             this.join(5000); // 5 second timeout
         } catch (InterruptedException e) {
             Rayon.LOGGER.error("Error joining {}", getName());
+            Thread.currentThread().interrupt();
         }
     }
 }

@@ -36,7 +36,7 @@ import java.util.function.Function;
  * @see PhysicsSpaceEvents
  */
 public class MinecraftSpace extends PhysicsSpace {
-    private final CompletableFuture<?>[] futures = new CompletableFuture[3];
+
     private final Map<BlockPos, TerrainRigidBody> terrainMap;
     private final PhysicsThread thread;
     private final Level level;
@@ -66,12 +66,7 @@ public class MinecraftSpace extends PhysicsSpace {
     }
 
     public MinecraftSpace(PhysicsThread thread, Level level, Function<MinecraftSpace, ChunkCache> chunkCacheFactory) {
-        super(
-//                new Vector3f(-Level.MAX_LEVEL_SIZE, Level.MIN_ENTITY_SPAWN_Y, -Level.MAX_LEVEL_SIZE),
-//                new Vector3f(Level.MAX_LEVEL_SIZE, Level.MAX_ENTITY_SPAWN_Y, Level.MAX_LEVEL_SIZE),
-//                BroadphaseType.AXIS_SWEEP_3_32
-                BroadphaseType.DBVT
-        );
+        super(BroadphaseType.DBVT);
 
         this.thread = thread;
         this.level = level;
@@ -112,76 +107,81 @@ public class MinecraftSpace extends PhysicsSpace {
     public void step() {
         MinecraftSpace.get(level).getRigidBodiesByClass(ElementRigidBody.class).forEach(ElementRigidBody::updateFrame);
 
-        if (!isStepping() && !isEmpty()) {
-            this.stepping = true;
+        if (isStepping() || isEmpty()) return;
 
-            for (var rigidBody : getRigidBodiesByClass(ElementRigidBody.class)) {
-                if (!rigidBody.terrainLoadingEnabled()) {
-                    continue;
-                }
+        this.stepping = true;
 
-                for (var blockPos : this.previousBlockUpdates) {
-                    if (rigidBody.isNear(blockPos)) {
-                        rigidBody.activate();
-                        break;
-                    }
+        for (var rigidBody : getRigidBodiesByClass(ElementRigidBody.class)) {
+            if (!rigidBody.terrainLoadingEnabled()) continue;
+
+            for (var blockPos : this.previousBlockUpdates) {
+                if (rigidBody.isNear(blockPos)) {
+                    rigidBody.activate();
+                    break;
                 }
             }
-            this.previousBlockUpdates.clear();
-
-            if (autoLoadTerrain) {
-                this.chunkCache.refreshAll();
-            }
-
-            // Step 3 times per tick, re-evaluating forces each step
-            for (int i = 0; i < 3; ++i) {
-                // Hop threads...
-                this.futures[i] = CompletableFuture.runAsync(() -> {
-                    /* World Step Event */
-                    PhysicsSpaceEvents.STEP.invoker().onStep(this);
-
-                    /* Step the Simulation */
-                    this.update(1/60f, maxSubSteps(), false, false, collisionEventsEnabled);
-                }, getWorkerThread());
-            }
-
-            CompletableFuture.allOf(futures).thenRun(() -> this.stepping = false);
         }
+
+        this.previousBlockUpdates.clear();
+
+        if (autoLoadTerrain) {
+            this.chunkCache.refreshAll();
+        }
+
+        // Step 3 times per tick, re-evaluating forces each step
+        CompletableFuture.runAsync(() -> {
+            for (int i = 0; i < 3; ++i) {
+                /* World Step Event */
+                PhysicsSpaceEvents.STEP.invoker().onStep(this);
+
+                /* Step the Simulation */
+                this.update(1 / 60f, maxSubSteps(), false, false, collisionEventsEnabled);
+            }
+
+            stepping = false;
+        }, getWorkerThread());
     }
 
     @Override
     public void addCollisionObject(PhysicsCollisionObject collisionObject) {
-        if (!collisionObject.isInWorld()) {
-            if (collisionObject instanceof ElementRigidBody rigidBody) {
-                PhysicsSpaceEvents.ELEMENT_ADDED.invoker().onElementAdded(this, rigidBody);
+        if (collisionObject.isInWorld()) return;
 
-                if (!rigidBody.isInWorld()) {
-                    rigidBody.activate();
-                    rigidBody.getFrame().set(
-                            rigidBody.getPhysicsLocation(new Vector3f()),
-                            rigidBody.getPhysicsLocation(new Vector3f()),
-                            rigidBody.getPhysicsRotation(new Quaternion()),
-                            rigidBody.getPhysicsRotation(new Quaternion()));
-                    rigidBody.updateBoundingBox();
-                }
-            } else if (collisionObject instanceof TerrainRigidBody terrain) {
-                this.terrainMap.put(terrain.getBlockPos(), terrain);
-            }
-
-            super.addCollisionObject(collisionObject);
+        if (collisionObject instanceof ElementRigidBody rigidBody) {
+            addRigidBody(rigidBody);
+        } else if (collisionObject instanceof TerrainRigidBody terrain) {
+            this.terrainMap.put(terrain.getBlockPos(), terrain);
         }
+
+        super.addCollisionObject(collisionObject);
+    }
+
+    private void addRigidBody(ElementRigidBody rigidBody) {
+        PhysicsSpaceEvents.ELEMENT_ADDED.invoker().onElementAdded(this, rigidBody);
+
+        if (rigidBody.isInWorld()) return;
+
+        rigidBody.activate();
+
+        Vector3f prevLocation = rigidBody.getPhysicsLocation(new Vector3f());
+        Vector3f tickLocation = rigidBody.getPhysicsLocation(new Vector3f());
+        Quaternion prevRotation = rigidBody.getPhysicsRotation(new Quaternion());
+        Quaternion tickRotation = rigidBody.getPhysicsRotation(new Quaternion());
+
+        rigidBody.getFrame().set(prevLocation, tickLocation, prevRotation, tickRotation);
+
+        rigidBody.updateBoundingBox();
     }
 
     @Override
     public void removeCollisionObject(PhysicsCollisionObject collisionObject) {
-        if (collisionObject.isInWorld()) {
-            super.removeCollisionObject(collisionObject);
+        if (!collisionObject.isInWorld()) return;
 
-            if (collisionObject instanceof ElementRigidBody rigidBody) {
-                PhysicsSpaceEvents.ELEMENT_REMOVED.invoker().onElementRemoved(this, rigidBody);
-            } else if (collisionObject instanceof TerrainRigidBody terrain) {
-                this.removeTerrainObjectAt(terrain.getBlockPos());
-            }
+        super.removeCollisionObject(collisionObject);
+
+        if (collisionObject instanceof ElementRigidBody rigidBody) {
+            PhysicsSpaceEvents.ELEMENT_REMOVED.invoker().onElementRemoved(this, rigidBody);
+        } else if (collisionObject instanceof TerrainRigidBody terrain) {
+            this.removeTerrainObjectAt(terrain.getBlockPos());
         }
     }
 
@@ -199,9 +199,7 @@ public class MinecraftSpace extends PhysicsSpace {
 
     public void wakeNearbyElementRigidBodies(BlockPos blockPos) {
         for (var rigidBody : getRigidBodiesByClass(ElementRigidBody.class)) {
-            if (!rigidBody.terrainLoadingEnabled()) {
-                continue;
-            }
+            if (!rigidBody.terrainLoadingEnabled()) continue;
 
             if (rigidBody.isNear(blockPos)) {
                 rigidBody.activate();
