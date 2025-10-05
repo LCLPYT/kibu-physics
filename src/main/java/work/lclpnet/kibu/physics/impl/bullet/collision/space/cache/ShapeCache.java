@@ -1,10 +1,10 @@
 package work.lclpnet.kibu.physics.impl.bullet.collision.space.cache;
 
-import work.lclpnet.kibu.physics.impl.bullet.collision.body.shape.MinecraftShape;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import work.lclpnet.kibu.physics.impl.bullet.collision.body.shape.MinecraftShape;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -20,7 +20,7 @@ public final class ShapeCache {
             return createShapeFor(blockState, level, blockPos);
         }
 
-        final var shapes = getShapes(level.isClientSide);
+        final var shapes = getShapes(level.isClientSide());
         var shape = shapes.get(blockState);
 
         if (shape == null) {
