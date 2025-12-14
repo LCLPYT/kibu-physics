@@ -6,6 +6,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import work.lclpnet.kibu.access.entity.DisplayEntityAccess;
@@ -29,7 +30,7 @@ public class RigidBodyBlockEntity extends Display.BlockDisplay implements Entity
         this.rigidBody.setBuoyancyType(ElementRigidBody.BuoyancyType.WATER);
         this.rigidBody.setMass(16);
 
-        setTransformation(new Transformation(resetTranslation(), new Quaternionf(), new Vector3f(1), new Quaternionf()));
+        setTransformation(new Transformation(new Matrix4f().translate(-0.5f, -0.5f, -0.5f)));
         setTransformationInterpolationDuration(type.updateInterval());
         setPosRotInterpolationDuration(type.updateInterval());
     }
@@ -46,9 +47,12 @@ public class RigidBodyBlockEntity extends Display.BlockDisplay implements Entity
         if (level().isClientSide()) return;
 
         Quaternionf rotation = Convert.toMinecraft(this.getPhysicsRotation(this.rotation, 0));
-        Vector3f translation = resetTranslation().rotate(rotation);
 
-        var transform = new Transformation(translation, rotation, new Vector3f(1), new Quaternionf());
+        var mat = new Matrix4f()
+                .rotate(rotation)
+                .translate(-0.5f, -0.5f, -0.5f);
+
+        var transform = new Transformation(mat);
         DisplayEntityAccess.setTransformation(this, transform);
 
         setTransformationInterpolationDelay(0);
