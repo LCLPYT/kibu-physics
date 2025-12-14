@@ -6,14 +6,14 @@ import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.projectile.Snowball;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -26,7 +26,7 @@ public class TestMod implements ModInitializer {
     public static final String MODID = "kibu-physics-test";
 
     public static final EntityType<RigidBodyBlockEntity> RIGID_BODY_BLOCK = registerEntityType(
-            rl("rigid_body_block"),
+            id("rigid_body_block"),
             EntityType.Builder.of(RigidBodyBlockEntity::new, MobCategory.MISC)
                     .noLootTable()
                     .sized(0, 0)
@@ -34,11 +34,11 @@ public class TestMod implements ModInitializer {
                     .updateInterval(1)
     );
 
-    public static @NotNull ResourceLocation rl(String floating) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, floating);
+    public static @NotNull Identifier id(String floating) {
+        return Identifier.fromNamespaceAndPath(MODID, floating);
     }
 
-    private static <T extends Entity> EntityType<T> registerEntityType(ResourceLocation id, EntityType.Builder<T> builder) {
+    private static <T extends Entity> EntityType<T> registerEntityType(Identifier id, EntityType.Builder<T> builder) {
         return Registry.register(BuiltInRegistries.ENTITY_TYPE, id, builder.build(ResourceKey.create(Registries.ENTITY_TYPE, id)));
     }
 

@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 
 public class Convert {
     public static AABB toMinecraft(BoundingBox box) {
@@ -22,7 +23,7 @@ public class Convert {
                 (float) box.getZsize());
     }
 
-    public static com.jme3.math.Quaternion toBullet(Quaternionf quat) {
+    public static com.jme3.math.Quaternion toBullet(Quaternionfc quat) {
         return new com.jme3.math.Quaternion(quat.x(), quat.y(), quat.z(), quat.w());
     }
 
@@ -42,7 +43,7 @@ public class Convert {
         return new org.joml.Vector3f(vector3f.x, vector3f.y, vector3f.z);
     }
 
-    public static Vector3f toBullet(org.joml.Vector3f vector3f) {
+    public static Vector3f toBullet(org.joml.Vector3fc vector3f) {
         return new Vector3f(vector3f.x(), vector3f.y(), vector3f.z());
     }
 

@@ -1,14 +1,14 @@
 package work.lclpnet.kibu.physics.impl.bullet.collision.space.supplier.entity;
 
-import work.lclpnet.kibu.physics.api.EntityPhysicsElement;
-import work.lclpnet.kibu.physics.impl.bullet.collision.body.ElementRigidBody;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.entity.vehicle.Minecart;
+import net.minecraft.world.entity.vehicle.boat.Boat;
+import net.minecraft.world.entity.vehicle.minecart.Minecart;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.AABB;
+import work.lclpnet.kibu.physics.api.EntityPhysicsElement;
+import work.lclpnet.kibu.physics.impl.bullet.collision.body.ElementRigidBody;
 
 import java.util.List;
 

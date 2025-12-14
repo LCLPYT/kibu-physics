@@ -19,7 +19,7 @@ import static work.lclpnet.kibu.physics.impl.bullet.collision.body.shape.Minecra
 
 public class BlockPhysics {
 
-    public static final TagKey<Block> FLOATING_TAG = TagKey.create(Registries.BLOCK, KibuPhysics.rl("water_floating"));
+    public static final TagKey<Block> FLOATING_TAG = TagKey.create(Registries.BLOCK, KibuPhysics.id("water_floating"));
     public static final MinecraftShape.Convex CENTERED_BOX = convex(new AABB(-.5, -.5, -.5, .5, .5, .5));
 
     public static float getMass(BlockState state) {
