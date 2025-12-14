@@ -79,11 +79,15 @@ dependencies {
     modLocalRuntime(modCompileOnly("work.lclpnet.mods.kibu:kibu-access-lib:$kibu_access_lib_version"))
 }
 
-processResources {
-	inputs.property "version", project.version
+[processResources, processTestmodResources].each {
+	it.inputs.property "version", project.version
+    it.inputs.property "loader_version", project.loader_version
+    it.inputs.property "minecraft_compat", project.minecraft_compat
 
-	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+	it.filesMatching("fabric.mod.json") {
+		expand "version": project.version,
+                "loader_version": project.loader_version,
+                "minecraft_compat": project.minecraft_compat
 	}
 }
 
