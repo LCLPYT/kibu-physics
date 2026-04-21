@@ -1,0 +1,29 @@
+[versions]
+minecraft = "26.1.2"
+fabric-api = "0.144.3+26.1"
+fabric-loader = "0.19.1"
+fabric-loom = "1.15-SNAPSHOT"
+gradle-build-tools = "1.7.0"
+java = "25"
+kibu-hook-api = "1.4.0"
+kibu-access-lib = "0.17.0+1.21.11"
+libbulletjme = "22.0.3"
+snaploader = "1.0.0-stable"
+
+[plugins]
+fabric-loom = { id = "net.fabricmc.fabric-loom", version.ref = "fabric-loom" }
+maven-publish = { id = "maven-publish" }
+gradle-build-utils = { id = "gradle-build-utils", version.ref = "gradle-build-tools" }
+
+[libraries]
+minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
+fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
+fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
+kibu-hook-api = { module = "work.lclpnet.mods.kibu:kibu-hook-api", version.ref = "kibu-hook-api" }
+kibu-access-lib = { module = "work.lclpnet.mods.kibu:kibu-access-lib", version.ref = "kibu-access-lib" }
+libbulletjme-linux-x64 = { module = "com.github.stephengold:Libbulletjme-Linux64", version.ref = "libbulletjme" }
+libbulletjme-linux-arm64 = { module = "com.github.stephengold:Libbulletjme-Linux_ARM64", version.ref = "libbulletjme" }
+libbulletjme-windows-x64 = { module = "com.github.stephengold:Libbulletjme-Windows64", version.ref = "libbulletjme" }
+libbulletjme-macosx-x64 = { module = "com.github.stephengold:Libbulletjme-MacOSX64", version.ref = "libbulletjme" }
+libbulletjme-macosx-arm64 = { module = "com.github.stephengold:Libbulletjme-MacOSX_ARM64", version.ref = "libbulletjme" }
+snaploader = { module = "io.github.electrostat-lab:snaploader", version.ref = "snaploader" }
