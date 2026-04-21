@@ -86,6 +86,7 @@ dependencies {
     implementation(libs.snaploader)
     include(libs.snaploader)
 
+    // required for the testmod
     compileOnly(libs.kibu.access.lib)
     localRuntime(libs.kibu.access.lib)
 }

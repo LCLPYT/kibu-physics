@@ -6,7 +6,7 @@ fabric-loom = "1.15-SNAPSHOT"
 gradle-build-tools = "1.7.0"
 java = "25"
 kibu-hook-api = "1.4.0"
-kibu-access-lib = "0.17.0+1.21.11"
+kibu-access-lib = "0.17.0+26.1"
 libbulletjme = "22.0.3"
 snaploader = "1.0.0-stable"
 
