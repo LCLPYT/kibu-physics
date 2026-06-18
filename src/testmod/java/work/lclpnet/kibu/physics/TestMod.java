@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.ItemStack;
@@ -62,7 +63,7 @@ public class TestMod implements ModInitializer {
             }
 
             if (stack.is(Items.GOLDEN_HORSE_ARMOR)) {
-                var entity = new Snowball(EntityType.SNOWBALL, level);
+                var entity = new Snowball(EntityTypes.SNOWBALL, level);
                 entity.setPos(player.getEyePosition());
                 entity.setDeltaMovement(player.getLookAngle());
 
